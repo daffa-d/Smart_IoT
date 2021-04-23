@@ -1,5 +1,3 @@
-# Smart_IoT
-
 <h1>Welcome To Smart IoT </h1>
 
 This code currently under development and refinement
