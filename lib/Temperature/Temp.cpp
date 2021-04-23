@@ -1,8 +1,6 @@
 #include <Temp.h>
 
-DHT 
-
-Temp::begin()
+float Suhu::Process()
 {
     
 }

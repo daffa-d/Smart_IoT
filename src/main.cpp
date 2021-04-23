@@ -17,7 +17,7 @@ void setup()
   Serial.begin(115200);
   AT.begin();
 
-  fb.begin("https://iot-kuu.firebaseio.com/", "Mc8IsWCPEVtRhU2Mbn16RnijhUnOXyTI4FFMg1H2");
+  fb.begin("xxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxx");
   Firebase.reconnectWiFi(true);
   GDR_1.begin();
   GDR_2.begin();
