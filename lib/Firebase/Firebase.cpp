@@ -37,9 +37,10 @@ getDataRelay::getDataRelay(uint8_t pin)
   _pin = pin;
 }
 
-void getDataRelay::begin()
+void getDataRelay::begin(boolean serial)
 {
   pinMode(_pin, OUTPUT);
+  _serial = serial;
 }
 
 int getDataRelay::getData_Relay(const char *pathDB, int &dataRelay)
@@ -47,23 +48,36 @@ int getDataRelay::getData_Relay(const char *pathDB, int &dataRelay)
   if (Firebase.getInt(fbdo, pathDB))
   {
     dataRelay = fbdo.intData();
-    Serial.print(F("Nilai Relay Pin Ke "));
-    Serial.print(_pin);
-    Serial.print(F(" Adalah = "));
+    if (_serial == true)
+    {
+      Serial.print(F("Nilai Relay Pin Ke "));
+      Serial.print(_pin);
+      Serial.print(F(" Adalah = "));
+    }
     Serial.println(dataRelay);
     if (dataRelay == 1)
     {
       digitalWrite(_pin, HIGH);
-      Serial.print(F("Relay Pin ke "));
-      Serial.print(_pin);
-      Serial.println(F(" Aktif"));
+      if (_serial == true)
+      {
+        Serial.print(F("Relay Pin ke "));
+        Serial.print(_pin);
+        Serial.println(F(" Aktif"));
+        Serial.println();
+         Serial.println();
+      }
     }
     else if (dataRelay == 0)
     {
       digitalWrite(_pin, LOW);
-      Serial.print(F("Relay Pin ke "));
-      Serial.print(_pin);
-      Serial.println(F(" Tidak Aktif"));
+      if (_serial == true)
+      {
+        Serial.print(F("Relay Pin ke "));
+        Serial.print(_pin);
+        Serial.println(F(" Tidak Aktif"));
+        Serial.println();
+         Serial.println();
+      }
     }
     else
     {
@@ -74,5 +88,6 @@ int getDataRelay::getData_Relay(const char *pathDB, int &dataRelay)
   {
     Serial.println(fbdo.errorReason());
   }
+
   return dataRelay;
 }
