@@ -24,11 +24,12 @@ class getDataRelay
 {
 public:
     getDataRelay(uint8_t pin);
-    void begin();
+    void begin(bool serial = false);
     int getData_Relay(const char *pathDB, int &dataRelay);
 
 private:
     uint8_t _pin;
+    boolean _serial = false;
 };
 
 #endif

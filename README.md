@@ -11,4 +11,8 @@ Firebase.h are the headers that are used to receive data and send data from fire
 Connection.h These headers are a combination of the esp8266 WiFi manager and WiFi client. all you have to do is change your wifi name and password on the <code> Connection AT() </code>
 
 **Temp.h** <br>
+<<<<<<< HEAD
 >Still in the refinement stage
+=======
+>Still in the refinement stage
+>>>>>>> 9ce9b81e5ce70595cdd8a4b271168048c6b65560

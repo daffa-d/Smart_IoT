@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include "Firebase.h"
 #include "Connection.h"
-//#include "Temp.h"
+#include "Temp.h"
 
 FB fb; //class object dari library firebase
 Connection AT("b4871e", "277123586"); //SSID,PASS, Autoconnect Wifimanager WebServer jika lebih dari 5 Detik
 getDataRelay GDR_1(16); // Data Relay True or False dari Firebase ke pin GPIO 16
 getDataRelay GDR_2(00); // Data Relay True or False dari Firebase ke pin GPIO 0
-
+Temp dht(21,DHT11);
 
 int dataRelay_1;
 int dataRelay_2;
@@ -17,7 +17,9 @@ void setup()
   Serial.begin(115200);
   AT.begin();
 
-  fb.begin("xxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxx");
+  dht.begin();
+
+  fb.begin("https://iot-kuu.firebaseio.com/", "Mc8IsWCPEVtRhU2Mbn16RnijhUnOXyTI4FFMg1H2"); // (Host Database Firebase, Auth Firebase)
   Firebase.reconnectWiFi(true);
   GDR_1.begin();
   GDR_2.begin();
