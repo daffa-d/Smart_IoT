@@ -1,6 +1,6 @@
 #include "Connection.h"
 
-WiFiClient client;
+
 WiFiManager wifiManager;
 
 Connection::Connection(const char *SSID, const char *PASS)
