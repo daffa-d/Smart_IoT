@@ -7,7 +7,7 @@
 #include "ThingSpeak.h"
 
 FB fb;                                //class object dari library firebase
-Connection AT("b4871e", "277123586"); //SSID,PASS, Autoconnect Wifimanager WebServer jika lebih dari 5 Detik
+Connection AT("b4871e", "**********"); //SSID,PASS, Autoconnect Wifimanager WebServer jika lebih dari 5 Detik
 getDataRelay GDR_1(16);               // Data Relay True or False dari Firebase ke pin GPIO 16
 getDataRelay GDR_2(00);               // Data Relay True or False dari Firebase ke pin GPIO 0
 DHT dht(12, DHT11);
@@ -20,8 +20,8 @@ float h;
 float t;
 String myStatus = "";
 
-unsigned long myChannelNumber = 1416426;
-const char *myWriteAPIKey = "CK9BFA1JMVQH0YE4";
+unsigned long myChannelNumber = *********;
+const char *myWriteAPIKey = "*************";
 
 byte Simbol_derajat = B11011111;
 
@@ -35,7 +35,7 @@ void setup()
 
   AT.begin();
 
-  fb.begin("https://iot-kuu.firebaseio.com/", "Mc8IsWCPEVtRhU2Mbn16RnijhUnOXyTI4FFMg1H2"); // (Host Database Firebase, Auth Firebase)
+  fb.begin("***************", "****************"); // (Host Database Firebase, Auth Firebase)
   Firebase.reconnectWiFi(true);
 
   GDR_1.begin();
