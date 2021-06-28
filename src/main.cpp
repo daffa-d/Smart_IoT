@@ -6,22 +6,25 @@
 #include "Wire.h"
 #include "ThingSpeak.h"
 
+#define buzzer D5
+
 FB fb;                                //class object dari library firebase
-Connection AT("b4871e", "**********"); //SSID,PASS, Autoconnect Wifimanager WebServer jika lebih dari 5 Detik
-getDataRelay GDR_1(16);               // Data Relay True or False dari Firebase ke pin GPIO 16
-getDataRelay GDR_2(00);               // Data Relay True or False dari Firebase ke pin GPIO 0
+Connection AT("b4871e", "277123586"); //SSID,PASS, Autoconnect Wifimanager WebServer jika lebih dari 5 Detik
+getDataRelay GDR_1(16, buzzer);       // Data Relay True or False dari Firebase ke pin GPIO 16
+getDataRelay GDR_2(00, buzzer);       // Data Relay True or False dari Firebase ke pin GPIO 0
 DHT dht(12, DHT11);
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 WiFiClient client;
 
 int dataRelay_1;
 int dataRelay_2;
+
 float h;
 float t;
 String myStatus = "";
 
-unsigned long myChannelNumber = *********;
-const char *myWriteAPIKey = "*************";
+unsigned long myChannelNumber = xxxxxx;
+const char *myWriteAPIKey = "xxxxxxxxxx";
 
 byte Simbol_derajat = B11011111;
 
@@ -33,9 +36,9 @@ void setup()
   lcd.clear();
   lcd.backlight();
 
-  AT.begin();
+  AT.begin(buzzer);
 
-  fb.begin("***************", "****************"); // (Host Database Firebase, Auth Firebase)
+  fb.begin("xxxxxxxxxxx.firebaseio.com", "xxxxxxxx4FFMg1H2"); // (Host Database Firebase, Auth Firebase)
   Firebase.reconnectWiFi(true);
 
   GDR_1.begin();
@@ -43,22 +46,25 @@ void setup()
   dht.begin();
   ThingSpeak.begin(client);
 
+  pinMode(buzzer, OUTPUT);
+
   lcd.printS(0, 0, " Tersambung IP : ");
   lcd.setCursor(2, 1);
   lcd.print(WiFi.localIP());
-  delay(5000);
+  digitalWrite(buzzer, HIGH);
+  delay(1000);
+  digitalWrite(buzzer, LOW);
   lcd.clear();
 }
 
 void Relay_LCD(int dataInput, int num_Relay);
 void main_LCD();
-void processing();
+void processThingspeak();
 
 void loop()
 {
-
-  GDR_1.getData_Relay("/Relay_1", dataRelay_1);
-  GDR_2.getData_Relay("/Relay_2", dataRelay_2);
+  GDR_1.run("/Relay_1", dataRelay_1, true);
+  GDR_2.run("/Relay_2", dataRelay_2);
 
   h = dht.readHumidity();
   t = dht.readTemperature();
@@ -66,18 +72,9 @@ void loop()
   main_LCD();
 
   fb.sendDataFloat(2000, "/Suhu", t);
-  fb.sendDataFloat(2000, "/Kelembapan", h);
+  fb.sendDataInt(2000, "/Kelembapan", h);
 
-  uint32_t previousTime = 0;
-  int Jeda = 20000;
-  unsigned long now = millis();
-  if (now - previousTime >= Jeda)
-  {
-    previousTime = now;
-    ThingSpeak.setField(1, t);
-    ThingSpeak.setField(2, h);
-    processing();
-  }
+  processThingspeak();
 }
 
 void main_LCD()
@@ -91,26 +88,6 @@ void main_LCD()
   int hd = (int)h;
   lcd.print(hd);
   lcd.print("% ");
-
-  /*
-  uint32_t Previous_t = 0;
-  int Jeda = 5000;
-  unsigned long Run = millis();
-  if(Run - Previous_t >= Jeda)
-  {
-    lcd.clear();
-    Previous_t = Run;
-    lcd.printS(0, 0, "Relay 1");
-    if(dataRelay_1 == 1){
-      lcd.printS(9, 0, "Aktif");
-      lcd.clear();
-    }
-    else if(dataRelay_1 == 0){
-      lcd.printS(9, 0, "Nonaktif");
-      lcd.clear();
-    }
-  }
-  */
 }
 
 void Relay_LCD(int dataInput, int num_Relay)
@@ -133,15 +110,29 @@ void Relay_LCD(int dataInput, int num_Relay)
   }
 }
 
-void processing()
+void processThingspeak()
 {
+  bool stateSend = false;
+  unsigned long previousTime = 0;
+  unsigned long Jeda = 20000;
+  if (millis() >= previousTime + Jeda)
+  {
+    stateSend = !stateSend;
+    if (stateSend)
+    {
+      ThingSpeak.setField(1, t);
+      ThingSpeak.setField(2, h);
+    }
+    previousTime = millis();
+  }
+
   ThingSpeak.setStatus(myStatus);
 
   // write to the ThingSpeak channel
   int x = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
   if (x == 200)
   {
-    Serial.println("Data Sudah Terkirim");
+    Serial.println(F("Data Sudah Terkirim"));
   }
   else
   {

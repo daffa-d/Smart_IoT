@@ -1,5 +1,11 @@
 #include "Firebase.h"
-//#include "Arduino.h"
+
+/**
+ * @file Firebase.cpp
+ * 
+ * @mainpage Library For Get data, Send data, and activate relay from firebase
+ * 
+ */
 
 FirebaseData fbdo;
 
@@ -8,86 +14,139 @@ void FB::begin(const String Host, const String Auth)
   Firebase.begin(Host, Auth);
 }
 
-void FB::sendDataInt(int time, const String path_db, int value)
+void FB::sendDataInt(int time, const String &path_db, int value)
 {
-  _time = time;
-  _path_db == path_db;
-  _valueInt = value;
-
-  Serial.print(F("Data Yang Dikirim Adalah (Interger) = "));
-  Serial.println(_valueInt);
-  Firebase.setInt(fbdo, path_db, _valueInt);
-  delay(_time);
+  //Serial.print(F("Data Yang Dikirim Adalah (Interger) = "));
+  //Serial.println(value);
+  Firebase.setInt(fbdo, path_db, value);
+  delay(time);
 }
 
-void FB::sendDataFloat(int time, const String path_db, float value)
+void FB::sendDataFloat(int time, const String &path_db, float value)
 {
-  _time = time;
-  _path_db == path_db;
-  _valueFloat = value;
-
-  Serial.print(F("Data Yang Dikirim Adalah (Float) = "));
-  Serial.println(value);
+  //Serial.print(F("Data Yang Dikirim Adalah (Float) = "));
+  //Serial.println(value);
   Firebase.setFloat(fbdo, path_db, value);
   delay(time);
 }
 
+/*!
+   * @param pin 
+   *        pin For relay. input with connected relay
+   * @param buzzer
+   *        buzzer flagging. true for active buzzer. false for deactive buzzer
+   * @param serial
+   *        for active serial print relay
+   */
+
 getDataRelay::getDataRelay(uint8_t pin)
 {
-  _pin = pin;
+  getDataRelay::_pin = pin;
 }
 
-void getDataRelay::begin(boolean serial)
+getDataRelay::getDataRelay(uint8_t pin, uint8_t pinBuzzer)
+{
+  _pin = pin;
+  _pinBuzzer = pinBuzzer;
+}
+
+void getDataRelay::begin()
 {
   pinMode(_pin, OUTPUT);
-  _serial = serial;
+  pinMode(_pinBuzzer, OUTPUT);
 }
 
-int getDataRelay::getData_Relay(const char *pathDB, int &dataRelay)
+/*!
+ * @brief Get Data From Firebase Database
+ * @param pathDB
+ *        path Realtime Database from Firebase
+ * @param dataRelay
+ *        add value from database to global variabel / arguments
+ */
+
+int getDataRelay::run(const char *pathDB, int &dataRelay)
 {
   if (Firebase.getInt(fbdo, pathDB))
   {
     dataRelay = fbdo.intData();
-    if (_serial == true)
-    {
-      Serial.print(F("Nilai Relay Pin Ke "));
-      Serial.print(_pin);
-      Serial.print(F(" Adalah = "));
-    }
-    Serial.println(dataRelay);
     if (dataRelay == 1)
     {
       digitalWrite(_pin, HIGH);
-      if (_serial == true)
-      {
-        Serial.print(F("Relay Pin ke "));
-        Serial.print(_pin);
-        Serial.println(F(" Aktif"));
-        Serial.println();
-         Serial.println();
-      }
     }
     else if (dataRelay == 0)
     {
       digitalWrite(_pin, LOW);
-      if (_serial == true)
-      {
-        Serial.print(F("Relay Pin ke "));
-        Serial.print(_pin);
-        Serial.println(F(" Tidak Aktif"));
-        Serial.println();
-         Serial.println();
-      }
     }
     else
     {
       Serial.println(F("Tidak Menerima Data"));
     }
   }
+  else if (Firebase.getString(fbdo, pathDB))
+  {
+    getDataRelay::_get = fbdo.stringData();
+    String res = getDataRelay::_get;
+    res.replace('\"', ' ');
+    dataRelay = res.toInt();
+    if (dataRelay == 1)
+    {
+      digitalWrite(_pin, HIGH);
+    }
+    if (dataRelay == 0)
+    {
+      digitalWrite(_pin, LOW);
+    }
+  }
   else
   {
     Serial.println(fbdo.errorReason());
   }
+  return dataRelay;
+}
 
+int getDataRelay::run(const char *pathDB, int &dataRelay, bool StateBuzzer)
+{
+  if (Firebase.getInt(fbdo, pathDB))
+  {
+    dataRelay = fbdo.intData();
+    if (dataRelay == 1)
+    {
+      digitalWrite(_pin, HIGH);
+    }
+    else if (dataRelay == 0)
+    {
+      digitalWrite(_pin, LOW);
+    }
+    else
+    {
+      Serial.println(F("Tidak Menerima Data"));
+    }
+  }
+  else if (Firebase.getString(fbdo, pathDB))
+  {
+    getDataRelay::_get = fbdo.stringData();
+    String res = getDataRelay::_get;
+    res.replace('\"', ' ');
+    dataRelay = res.toInt();
+    if (dataRelay = !dataRelay)
+    {
+      if (dataRelay == 1)
+      {
+        digitalWrite(_pin, HIGH);
+      }
+      if (dataRelay == 0)
+      {
+        digitalWrite(_pin, LOW);
+      }
+    }
+    else if( dataRelay == dataRelay)
+    {
+      Serial.println("Data Sama");
+    }
+  }
+  else
+  {
+    Serial.println(fbdo.errorReason());
+  }
   return dataRelay;
 }
